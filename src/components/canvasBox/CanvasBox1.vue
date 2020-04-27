@@ -190,8 +190,10 @@
                                 if (q >= len) {
                                     q = 0
                                 }
+                                j.children.map(k=>{
+                                    k.layer.requestAnimation = false
+                                });
                                 j.children[q].fun = this.Animations.draw(j.children[q].layer);
-
                             }, 5000)
                         }
                     })
@@ -485,8 +487,12 @@
                     i.children.map((j) => {
                         clearInterval(j.timer);
                         j.timer = null;
+                        j.children.map(k=>{
+                            k.layer.requestAnimation = false;
+                        })
                     })
                 });
+                setTimeout(()=>this.drawMaterial(),200)
             },
             //清除动画
             clearAnimations1() {

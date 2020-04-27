@@ -3,23 +3,32 @@ import {selectOption} from "../../../assets/js/animation";
 class DateTime {
     constructor(item, vue) {
         this.vue = vue;
-        this.draw(item);
+        this.item = item;
+        this.img = this.createImg(item);
+        setTimeout(() => {
+            this.draw(item);
+        }, 1000);
+        this.drawImg = this.drawImg.bind(this);
+        this.stopAnimation = true;
     }
 
 
     draw(item) {
-        let ctx = this.vue.ctx;
+        item.timer = requestAnimationFrame(this.drawImg.bind(this))
+    }
 
+    drawImg() {
+        let item = this.item;
+        let ctx = this.vue.ctx;
+        this.img = this.createImg(item);
         ctx.clearRect(item.x1, item.y1, item.width, item.height);
         ctx.beginPath();
-        let img = this.createImg(item);
-        ctx.drawImage(img, 0, 0, item.width, item.height, item.x1, item.y1 + item.height / 2, item.width, item.height);
-        item.timer = setInterval(() => {
-            ctx.clearRect(item.x1, item.y1, item.width, item.height);
-            ctx.beginPath();
-            let img = this.createImg(item);
-            ctx.drawImage(img, 0, 0, item.width, item.height, item.x1, item.y1 + item.height / 2, item.width, item.height);
-        }, 15);
+        ctx.drawImage(this.img, 0, 0, item.width, item.height, item.x1, item.y1 + item.height / 2, item.width, item.height);
+        if(this.stopAnimation){
+            item.timer = requestAnimationFrame(this.drawImg.bind(this))
+        }else{
+            item.timer = requestAnimationFrame(this.stop.bind(this))
+        }
     }
 
 
@@ -54,6 +63,10 @@ class DateTime {
         }
         img.src = canvasImg.toDataURL();
         return img;
+    }
+
+    stop(){
+        console.log('我就是为了把这玩意停下来');
     }
 }
 

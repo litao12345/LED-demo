@@ -2,7 +2,8 @@ import drawMaterial from './drawMaterial';
 import {selectOption} from "../../assets/js/animation";
 import singText from './js-draw-animation/singText';
 import MultiLine from './js-draw-animation/MultiLine';
-import DateTime from './js-draw-animation/DateTime'
+// import DateTime from './js-draw-animation/DateTime'
+import DateTime from './js-draw-animation/dateTime2'
 
 class Animations {
     constructor(vue) {

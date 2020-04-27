@@ -3,32 +3,48 @@ import {selectOption} from "../../../assets/js/animation";
 class DateTime {
     constructor(item, vue) {
         this.vue = vue;
-        this.draw(item);
+        this.item = item;
+        /*this.img = this.createImg(item);
+        setTimeout(() => {
+            this.draw(item);
+        }, 1000);
+        this.drawImg = this.drawImg.bind(this);
+        this.stopAnimation = true;*/
+        this.createImg = this.createImg.bind(this);
+        item.timer = item.timer = requestAnimationFrame(this.createImg.bind(this));
+        item.requestAnimation = true;
     }
 
 
-    draw(item) {
-        let ctx = this.vue.ctx;
+    /*draw(item) {
+        item.timer = requestAnimationFrame(this.drawImg.bind(this))
+    }
 
+    drawImg() {
+        let item = this.item;
+        item.timer = requestAnimationFrame(this.drawImg.bind(this))
+        /!*let item = this.item;
+        let ctx = this.vue.ctx;
+        this.img = this.createImg(item);
         ctx.clearRect(item.x1, item.y1, item.width, item.height);
         ctx.beginPath();
-        let img = this.createImg(item);
-        ctx.drawImage(img, 0, 0, item.width, item.height, item.x1, item.y1 + item.height / 2, item.width, item.height);
-        item.timer = setInterval(() => {
-            ctx.clearRect(item.x1, item.y1, item.width, item.height);
-            ctx.beginPath();
-            let img = this.createImg(item);
-            ctx.drawImage(img, 0, 0, item.width, item.height, item.x1, item.y1 + item.height / 2, item.width, item.height);
-        }, 15);
-    }
+        ctx.drawImage(this.img, 0, 0, item.width, item.height, item.x1, item.y1 + item.height / 2, item.width, item.height);
+        if(this.stopAnimation){
+            item.timer = requestAnimationFrame(this.drawImg.bind(this))
+        }else{
+            item.timer = requestAnimationFrame(this.stop.bind(this))
+        }*!/
+    }*/
 
 
-    createImg(item) {
+    createImg() {
+        let item = this.item;
         let animation = item.animation;
         let canvasImg = document.createElement('canvas');
         let fontSize = selectOption.fontSize[animation.fontSize.type].val;
         let img = document.createElement('img');
-        let ctx = canvasImg.getContext('2d');
+        let ctx = this.vue.ctx;
+        ctx.clearRect(item.x1, item.y1, item.width, item.height);
         ctx.beginPath();
         //判断时间格式
         item.text = judgmentTimeFormat(animation.timeFormat.type, animation.displayFormat.type);
@@ -49,11 +65,21 @@ class DateTime {
             //获取字体大小
             ctx.textAlign = animation.displayFormat.type ? 'center' : 'start';
             ctx.font = selectOption.fontSize[animation.fontSize.type].val + 'px Aria';
-            ctx.fillText(item.text.charAt(i), item.x1 + count * selectOption.fontSize[animation.fontSize.type].val / 2 + fontSize / 2, fontSize);
+            if(item.x1 + count * selectOption.fontSize[animation.fontSize.type].val / 2 + fontSize * 1.5 < item.x2){
+                ctx.fillText(item.text.charAt(i), item.x1 + count * selectOption.fontSize[animation.fontSize.type].val / 2 + fontSize / 2, item.y1 + item.height / 2);
+            }
             count = regString(item.text.charAt(i)) ? count + 2 : count + 1;
         }
-        img.src = canvasImg.toDataURL();
-        return img;
+        // img.src = canvasImg.toDataURL();
+        // return img;
+        if(item.requestAnimation){
+            item.timer = requestAnimationFrame(this.createImg.bind(this))
+        }
+
+    }
+
+    stop() {
+        console.log('我就是为了把这玩意停下来');
     }
 }
 
