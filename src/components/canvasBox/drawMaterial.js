@@ -25,14 +25,15 @@ class myDrawMaterial {
         let animation = item.animation;
         let ctx = this.vue.ctx;
         ctx.beginPath();
-        ctx.fillStyle = 'pink';
+        ctx.strokeStyle = '#FFF';
         ctx.rect(item.x1, item.y1, item.width, item.height);
-        ctx.fill();
+        ctx.stroke();
         for (let i = 0; i < item.text.length; i++) {
             ctx.beginPath();
+            ctx.textAlign = "center";
             ctx.fillStyle = selectOption.color[animation.color.type].val;
             ctx.font = selectOption.fontSize[animation.fontSize.type].val + 'px Aria';
-            if ((i+1) * selectOption.fontSize[animation.fontSize.type].val < item.width) {
+            if ((i + 1) * selectOption.fontSize[animation.fontSize.type].val < item.width) {
                 ctx.fillText(item.text.charAt(i), item.x1 + i * selectOption.fontSize[animation.fontSize.type].val, item.y1 + item.height / 2);
             }
         }
@@ -45,14 +46,16 @@ class myDrawMaterial {
     multiLine(item) {
         let animation = item.animation;
         let ctx = this.vue.ctx;
+        let fontSize = selectOption.fontSize[animation.fontSize.type].val;
         ctx.beginPath();
         ctx.fillStyle = '#36f2aa';
         ctx.rect(item.x1, item.y1, item.width, item.height);
         ctx.fill();
         item.text.map((i, index) => {
             ctx.beginPath();
+            ctx.textAlign = "start";
             ctx.fillStyle = selectOption.color[animation.color.type].val;
-            ctx.font = selectOption.fontSize[animation.fontSize.type].val + 'px Aria';
+            ctx.font = fontSize + 'px Aria';
             ctx.fillText(i, item.x1, item.y1 + (index + 1) * selectOption.fontSize[animation.fontSize.type].val);
         });
     }
@@ -77,9 +80,10 @@ class myDrawMaterial {
             let typeOf = isNaN(parseInt(item.text.charAt(i)));
             //判断当前字符为是否为数字
             ctx.fillStyle = typeOf ? selectOption.color[animation.iconColor.type].val : selectOption.color[animation.numColor.type].val;
+            ctx.textAlign = "center";
             //获取字体大小
             ctx.font = selectOption.fontSize[animation.fontSize.type].val + 'px Aria';
-            if ((i+1) * selectOption.fontSize[animation.fontSize.type].val <= item.width) {
+            if ((i + 1) * selectOption.fontSize[animation.fontSize.type].val <= item.width) {
                 ctx.fillText(item.text.charAt(i), item.x1 + i * selectOption.fontSize[animation.fontSize.type].val, item.y1 + item.height / 2);
             }
         }
@@ -127,7 +131,6 @@ class myDrawMaterial {
             height: layer.height,
             areaId: area.areaId,
             type: 1,
-            fontSize: 16,
             animation
         };
         this.vue.pageList[this.vue.choosePage].children[this.vue.chooseArea].children.push({
@@ -162,7 +165,6 @@ class myDrawMaterial {
             height: layer.height,
             areaId: area.areaId,
             type: 2,
-            fontSize: 16,
             animation
 
         };
@@ -198,9 +200,6 @@ class myDrawMaterial {
             height: layer.height,
             areaId: area.areaId,
             type: 3,
-            fontSize: 16,
-            iconColor: 'red',
-            numColor: 'blue',
             animation
         };
         this.vue.pageList[this.vue.choosePage].children[this.vue.chooseArea].children.push({

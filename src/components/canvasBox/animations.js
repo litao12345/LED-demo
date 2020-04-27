@@ -1,5 +1,8 @@
 import drawMaterial from './drawMaterial';
 import {selectOption} from "../../assets/js/animation";
+import singText from './js-draw-animation/singText';
+import MultiLine from './js-draw-animation/MultiLine';
+import DateTime from './js-draw-animation/DateTime'
 
 class Animations {
     constructor(vue) {
@@ -7,123 +10,55 @@ class Animations {
         this.drawMaterial = new drawMaterial(vue);
     }
 
-    //单行文本
-    drawSingText(item) {
-        let animation = item.animation;
-        let ctx = this.vue.ctx;
-        let i;
 
-        switch (animation.method.type) {
-            case 0:
-                i = _.cloneDeep(item.x2);
-                break;
+    draw(item) {
+        switch (item.type) {
             case 1:
-                i = _.cloneDeep(item.x2);
+                new singText(item,this.vue);
                 break;
             case 2:
-                i = _.cloneDeep(item.x1);
+                new MultiLine(item,this.vue);
                 break;
             case 3:
-                i = _.cloneDeep(item.y1);
+                new DateTime(item,this.vue);
                 break;
             case 4:
-                i = _.cloneDeep(item.y2);
+                break;
+            case 5:
+                break;
+            case 6:
                 break;
         }
-
-        item.timer = setInterval(() => {
-            ctx.clearRect(item.x1, item.y1, item.x2, item.y2);
-            this.vue.Canvas.drawPixel(item.x1, item.y1, item.x2, item.y2);
-            ctx.save();
-            ctx.beginPath();
-            let fontSize = selectOption.fontSize[animation.fontSize.type].val;
-            let len = item.text.length;
-            for (let j = 0; j < len; j++) {
-                let point;
-                switch (animation.method.type) {
-                    case 0:
-                        point = {
-                            x: i - (len - j) * selectOption.fontSize[animation.fontSize.type].val > item.x1 ? i - (len - j) * selectOption.fontSize[animation.fontSize.type].val : item.x1 + j * selectOption.fontSize[animation.fontSize.type].val,
-                            y: item.y1 + item.height / 2
-                        };
-                        break;
-                    case 1:
-                        point = {
-                            x: i - (len - j) * selectOption.fontSize[animation.fontSize.type].val > item.x1 ? i - (len - j) * selectOption.fontSize[animation.fontSize.type].val : item.x1 + j * selectOption.fontSize[animation.fontSize.type].val,
-                            y: item.y1 + item.height / 2
-                        };
-                        break;
-                    case 2:
-                        point = {
-                            x: i + j * fontSize >= item.x2 - fontSize ? i - (len - j) * selectOption.fontSize[animation.fontSize.type].val : i + j * fontSize,
-                            y: item.y1 + item.height / 2
-                        };
-                        break;
-                    case 3:
-                        point = {
-                            x: item.x1 + item.width / 3 + j * fontSize,
-                            y:  i - fontSize
-                        };
-                        break;
-                    case 4:
-                        point = {
-                            x: item.x1 + item.width / 3 + j * fontSize,
-                            y: i + fontSize
-                        };
-                        break;
-                }
-                /*let point = {
-                    x: i - (len - j) * selectOption.fontSize[animation.fontSize.type].val > item.x1 ? i - (len - j) * selectOption.fontSize[animation.fontSize.type].val : item.x1 + j * selectOption.fontSize[animation.fontSize.type].val,
-                    y: item.y1 + item.height / 2
-                };*/
-                ctx.fillStyle = locationJudgment(point, item, selectOption.color[animation.color.type].val);
-                ctx.font = fontSize + 'px Aria';
-                ctx.fillText(item.text.charAt(j), point.x, point.y);
-            }
-            ctx.restore();
-            switch (animation.method.type) {
-                case 0:
-                    if (i <= item.x1) {
-                        clearInterval(item.timer);
-                        item.timer = null;
-                    }
-                    i--;
-                    break;
-                case 1:
-                    if (i <= item.x1) {
-                        clearInterval(item.timer);
-                        item.timer = null;
-                    }
-                    i--;
-                    break;
-                case 2:
-                    if (i >= item.x2) {
-                        clearInterval(item.timer);
-                        item.timer = null;
-                    }
-                    i++;
-                    break;
-                case 3:
-                    if (i >= item.y2) {
-                        clearInterval(item.timer);
-                        item.timer = null;
-                    }
-                    i++;
-                    break;
-                case 4:
-                    if (i <= item.y1) {
-                        clearInterval(item.timer);
-                        item.timer = null;
-                    }
-                    i--;
-                    break;
-            }
-        }, animation.speed.val)
     }
 
     //多行文本
-    drawMultiLine() {
-
+    drawMultiLine(item) {
+        let animation = item.animation;
+        let canvasImg = document.createElement('canvas');
+        let fontSize = selectOption.fontSize[animation.fontSize.type].val;
+        let arr = [];
+        item.text.map(i => {
+            arr.push(i.getLen());
+        });
+        canvasImg.width = fontSize * Math.max(...arr) / 2;
+        canvasImg.height = fontSize * (item.text.length + 1);
+        let ctxImg = canvasImg.getContext('2d');
+        ctxImg.font = fontSize + 'px Aria';
+        let len = canvasImg.width / fontSize * 2;
+        ctxImg.fillStyle = selectOption.color[animation.color.type].val;
+        item.text.map((i, index) => {
+            ctxImg.beginPath();
+            ctxImg.textAlign = 'center';
+            if (index === item.text.length - 1 && i.getLen() < len) {
+                ctxImg.textAlign = 'start';
+                ctxImg.fillText(i, 0, (index + 1) * fontSize)
+            } else {
+                ctxImg.fillText(i, fontSize * len / 4, (index + 1) * fontSize)
+            }
+        });
+        let img = document.createElement('img');
+        img.src = canvasImg.toDataURL();
+        return img;
     }
 
     //时间日期

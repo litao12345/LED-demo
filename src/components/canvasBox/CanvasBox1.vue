@@ -18,7 +18,7 @@
                 <el-button type="primary" @click="deleteArea" :disabled="disabled.isDelArea">删除区域</el-button>
                 <el-button type="primary" @click="animateText" :disabled="isAnimations">动起来</el-button>
                 <el-button type="primary" @click="clearAnimations" :disabled="!isAnimations">清除动画</el-button>
-                <el-button type="primary" @click="clearAnimations" :disabled="!isAnimations">清除动画</el-button>
+                <el-button type="primary" @click="clearAnimations1" :disabled="!isAnimations">清除动画</el-button>
             </div>
             <div class="device-list">
                 <el-tree
@@ -108,86 +108,7 @@
                 isAnimations: false,
                 currentNode: null,
                 areaId: 1,
-                animationsList: [
-                    {
-                        name: 'animation1',
-                        type: 1,//单行文本
-                        method: 1,//从右往左依次显示
-                        speed: 1,
-                        time: 10,
-                        x: 500,
-                        y: 200,
-                        font: '40px Aria'
-                    },
-                    {
-                        name: 'animation2',
-                        type: 1,//单行文本
-                        method: 2,//从左往右依次显示
-                        speed: 1,
-                        time: 10,
-                        x: 100,
-                        y: 300,
-                        font: '40px Aria'
-                    },
-                    {
-                        name: 'animation3',
-                        type: 1,//单行文本
-                        method: 3,//从上往下依次显示
-                        speed: 1,
-                        time: 10,
-                        x: 200,
-                        y: 100,
-                        font: '40px Aria'
-                    },
-                    {
-                        name: 'animation4',
-                        type: 1,//单行文本
-                        method: 4,//从下往上依次显示
-                        speed: 1,
-                        time: 10,
-                        x: 100,
-                        y: 500,
-                        font: '40px Aria'
-                    },
-                    {
-                        name: 'animation4',
-                        type: 3,//时间日期
-                        x: 500,
-                        y: 500,
-                    },
-                    {
-                        name: "animations5",
-                        type: 4,
-                        beginTime: new Date(),
-                        x: 700,
-                        y: 200,
-                        index: 0
-                    },
-                    {
-                        name: "animations7",
-                        type: 4,
-                        beginTime: new Date(),
-                        x: 700,
-                        y: 300,
-                        index: 1
-                    },
-                    {
-                        name: 'animations6',
-                        type: 5,
-                        endTime: '2020-04-10 17:30:00',
-                        x: 1000,
-                        y: 200,
-                        index: 0
-                    },
-                    {
-                        name: 'animations6',
-                        type: 5,
-                        endTime: '2020-04-10 17:29:00',
-                        x: 1000,
-                        y: 300,
-                        index: 1
-                    }
-                ],
+                animationsList: [],
                 materialId: 1,
                 materialLayers: [],
                 clickAndMove: {
@@ -262,32 +183,17 @@
                     i.children.map((j) => {
                         let len = j.children.length;
                         let q = 0;
-                        j.children[q].fun = this.beginAnimate(j.children[q].layer);
-                        // let timer = null;
-                        /*j.timer = setInterval(() => {
-                            console.log(2)
-                            if(!timer){
-                                timer = setInterval(()=>{
-                                    console.log(q)
-                                    q++;
-                                    if (q >= len) {
-                                        clearInterval(timer);
-                                        timer = null;
-                                        q = -1
-                                    }else{
-                                        j.children[q].fun = this.beginAnimate(j.children[q].layer);
-                                    }
-                                },1000)
-                            }
-                        }, 5000)*/
-                        j.timer = setInterval(() => {
-                            q++;
-                            if (q >= len) {
-                                q = 0
-                            }
-                            j.children[q].fun = this.beginAnimate(j.children[q].layer);
+                        if(len){
+                            j.children[q].fun = this.Animations.draw(j.children[q].layer);
+                            j.timer = setInterval(() => {
+                                q++;
+                                if (q >= len) {
+                                    q = 0
+                                }
+                                j.children[q].fun = this.Animations.draw(j.children[q].layer);
 
-                        }, 5000)
+                            }, 5000)
+                        }
                     })
                 });
             },
@@ -298,10 +204,10 @@
                         this.Animations.drawSingText(item);
                         break;
                     case 2:
-                        this.Animations.drawMultiLine();
+                        this.Animations.drawMultiLine(item);
                         break;
                     case 3:
-                        this.Animations.drawDateTime();
+                        this.Animations.drawDateTime(item);
                         break;
                     case 4:
                         this.Animations.drawPosTime();
@@ -514,7 +420,6 @@
                 })
             },
             handleIpy(key) {
-                console.log(key)
             },
             //重复动画
             drawAllAnimations() {
@@ -573,7 +478,7 @@
             },
             //清除动画
             clearAnimations() {
-                const {ctx, myCanvas} = this;
+                const {ctx, myCanvas} = this.Canvas;
                 this.isAnimations = false;
                 ctx.clearRect(0, 0, myCanvas.clientWidth, myCanvas.clientHeight);
                 this.animationsList.map((i) => {
@@ -582,6 +487,11 @@
                         j.timer = null;
                     })
                 });
+            },
+            //清除动画
+            clearAnimations1() {
+                const {ctx, myCanvas} = this.Canvas;
+                ctx.clearRect(200, 400, 200, 200);
             },
             //预览时添加遮罩，阻止操作
             MaskLayer() {
@@ -654,6 +564,11 @@
                             if (item.id === currentNode.id) {
                                 item.animation = data;
                                 item.name = data.name.val;
+                                this.materialLayers.map(i=>{
+                                    if(i.areaId === item.areaId){
+                                        i.animation = item.animation;
+                                    }
+                                });
                                 this.drawMaterial();
                             }
                         })

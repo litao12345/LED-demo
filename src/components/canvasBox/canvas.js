@@ -1,3 +1,5 @@
+import {selectOption} from "../../assets/js/animation";
+
 class Canvas {
     constructor(vue) {
         this.ctx = null;
@@ -115,11 +117,14 @@ class Canvas {
                         if (item.type === 1) {
                             item.layer.text = value;
                         } else {
+                            let fontSize = selectOption.fontSize[item.animation.fontSize.type].val;
                             item.layer.text = [];
-                            let count = parseInt(item.layer.width / item.layer.fontSize);
+                            let count = parseInt(item.layer.width / fontSize);
                             for (let i = 0; i < value.length; i += count) {
+                                console.log(value,i, count)
                                 item.layer.text.push(value.substr(i, count))
                             }
+                            console.log(item.layer.text)
                         }
                     }
                 });
@@ -448,6 +453,8 @@ class Canvas {
             ctx.stroke();
         }
     }
+
+
 }
 
 export default Canvas;
